@@ -1,0 +1,26 @@
+{
+  "name": "socket-api-3",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/socket-api-3/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "socket-api-3:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "socket-api-3:build:development"
+        },
+        "production": {
+          "buildTarget": "socket-api-3:build:production"
+        }
+      }
+    }
+  }
+}

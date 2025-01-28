@@ -1,21 +1,22 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import express from 'express';
-import * as path from 'path';
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
 
 const app = express();
+const server = createServer(app);
+const port = process.env.PORT || 3001;
+const io = new Server(server, { transports: ['websocket'] });
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to socket-api-1!' });
+app.get('/', (req, res) => {
+  res.send('<p>Welcome to socket-api-1</p>');
 });
 
-const port = process.env.PORT || 3333;
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+io.on('connection', (socket) => {
+  console.log('a user connected to socket-api-1');
 });
+
+server.listen(port, () => {
+  console.log(`server running at http://localhost:${port}`);
+});
+
 server.on('error', console.error);

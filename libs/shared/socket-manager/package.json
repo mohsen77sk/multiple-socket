@@ -2,8 +2,8 @@
   "name": "@lib/shared/socket-manager",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "^19.1.0",
-    "@angular/core": "^19.1.0"
+    "@angular/core": "^19.1.0",
+    "socket.io-client": "^4.8.0"
   },
   "sideEffects": false
 }

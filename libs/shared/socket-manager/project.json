@@ -1,5 +1,5 @@
 {
-  "name": "SocketManager",
+  "name": "socket-manager",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/socket-manager/src",
   "prefix": "lib",

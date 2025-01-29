@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
    */
   ngOnInit(): void {
     this._socketManagerService
-      .listenAll<string>('broadcastMessage')
+      .listen<string>('broadcastMessage')
       .pipe(tap((message) => console.log(message)))
       .subscribe();
   }

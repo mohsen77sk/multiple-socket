@@ -5,6 +5,16 @@ import { EMPTY, Observable } from 'rxjs';
 import { SOCKET_CONFIG } from './socket-manager.constants';
 import { SocketConfig } from './socket-manager.types';
 
+class ConnectedSocket {
+  value: Socket;
+  isActive: boolean;
+
+  constructor(input: Socket) {
+    this.value = input;
+    this.isActive = false;
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class SocketManagerService {
   private _initConfig = inject(SOCKET_CONFIG);
@@ -55,45 +65,72 @@ export class SocketManagerService {
    * Otherwise, it emits the event with the provided data to the selected socket.
    */
   emit(event: string, data: unknown): void {
-    const socketKey = Object.keys(this._sockets).find(
-      (key) => this._sockets[key].emitList.some((x) => x === event) && this._sockets[key].socket.connected
-    );
+    const sockets = Object.values(this._sockets).filter((socket) => socket.emitList.some((x) => x === event));
 
-    if (!socketKey) {
-      console.error(`No active socket found for emit event: ${event}`);
+    if (sockets.length === 0) {
+      console.error(`No socket found for emit event: ${event}`);
       return;
     }
 
-    this._sockets[socketKey].socket.emit(event, data);
+    sockets.find((s) => s.socket.connected)?.socket.emit(event, data);
   }
 
   /**
-   * Listens for a specific event on the connected socket and returns an Observable.
+   * Listens for a specific event on the first available connected socket.
    *
    * @template T - The type of data expected to be received from the socket event.
    * @param {string} event - The name of the event to listen for.
    * @returns {Observable<T | never>} An Observable that emits data of type T when the event occurs,
-   *                                  or never emits if no active socket is found for the event.
+   *                                  or never emits if no sockets are found for the event.
    *
    * @description
-   * This function searches for an active socket that is configured to listen for the specified event.
-   * If found, it sets up a listener on that socket and returns an Observable that emits the received data.
-   * If no active socket is found for the event, it logs an error and returns an empty Observable.
+   * This function searches for sockets configured to listen for the specified event.
+   * It sets up listeners on all matching sockets, but only emits data from the first
+   * connected socket. If a socket disconnects, it switches to the next available socket.
+   * If no sockets are found for the event, it logs an error and returns an empty Observable.
    */
   listen<T>(event: string): Observable<T | never> {
-    const socketKey = Object.keys(this._sockets).find(
-      (key) => this._sockets[key].listenList.some((x) => x === event) && this._sockets[key].socket.connected
-    );
+    const sockets = Object.values(this._sockets)
+      .filter((item) => item.listenList.some((x) => x === event))
+      .map((item) => item.socket);
 
-    if (!socketKey) {
-      console.error(`No active socket found for listen event: ${event}`);
+    if (sockets.length === 0) {
+      console.error(`No socket found for listen event: ${event}`);
       return EMPTY;
     }
 
     return new Observable((observer) => {
-      this._sockets[socketKey].socket.on(event, (data: T) => {
-        observer.next(data);
+      let connectedSockets = sockets.filter((x) => x.connected).map((x) => new ConnectedSocket(x));
+
+      sockets.forEach((item) => {
+        item.on('connect', () => {
+          const socketItem = new ConnectedSocket(item);
+          connectedSockets.push(socketItem);
+          if (!connectedSockets.some((x) => x.isActive)) {
+            listenToActiveEndpoint(socketItem);
+          }
+        });
+
+        item.on('disconnect', () => {
+          item.off(event);
+          connectedSockets = connectedSockets.filter((x) => x.value.id !== item.id);
+          if (!connectedSockets.some((x) => x.isActive)) {
+            listenToActiveEndpoint(connectedSockets[0]);
+          }
+        });
       });
+
+      const listenToActiveEndpoint = (socket?: ConnectedSocket) => {
+        if (!socket) return;
+
+        socket.value.on(event, (data: T) => {
+          observer.next(data);
+        });
+
+        socket.isActive = true;
+      };
+
+      listenToActiveEndpoint(connectedSockets[0]);
     });
   }
 
@@ -111,18 +148,16 @@ export class SocketManagerService {
    * If no sockets are found for the event, it logs an error and returns an empty Observable.
    */
   listenAll<T>(event: string): Observable<T | never> {
-    const socketKeys = Object.keys(this._sockets).filter((key) =>
-      this._sockets[key].listenList.some((x) => x === event)
-    );
+    const sockets = Object.values(this._sockets).filter((socket) => socket.listenList.some((x) => x === event));
 
-    if (socketKeys.length === 0) {
+    if (sockets.length === 0) {
       console.error(`No socket found for listen event: ${event}`);
       return EMPTY;
     }
 
     return new Observable((observer) => {
-      socketKeys.forEach((socketKey) => {
-        this._sockets[socketKey].socket.on(event, (data: T) => {
+      sockets.forEach((item) => {
+        item.socket.on(event, (data: T) => {
           observer.next(data);
         });
       });
@@ -207,6 +242,10 @@ export class SocketManagerService {
     // socket.on('connect_error', (err: Error) => {
     //   console.error(`Connection error: ${config.endpoint}`, err.message);
     // });
+
+    socket.on('connect', () => {
+      console.log(`Connect to ${config.endpoint}`);
+    });
 
     socket.on('disconnect', () => {
       console.log(`Disconnected from ${config.endpoint}`);

@@ -24,6 +24,14 @@ setInterval(() => {
   console.log('Broadcast message sent:', message);
 }, 5000);
 
+setInterval(() => {
+  const timestamp = new Date().toLocaleTimeString('fa-IR');
+  const message = `${timestamp}`;
+
+  io.emit('time', message);
+  console.log('Time sent:', message);
+}, 1000);
+
 server.listen(port, () => {
   console.log(`server running at http://localhost:${port}`);
 });

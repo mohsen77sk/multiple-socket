@@ -12,7 +12,12 @@ export const appConfig: ApplicationConfig = {
     provideSocketManager([
       { endpoint: 'http://localhost:3001', auth: { token: '3001' }, listenList: ['broadcastMessage'], emitList: [] },
       { endpoint: 'http://localhost:3002', auth: { token: '3002' }, listenList: ['broadcastMessage'], emitList: [] },
-      { endpoint: 'http://localhost:3003', auth: { token: '3003' }, listenList: ['broadcastMessage'], emitList: [] },
+      {
+        endpoint: 'http://localhost:3003',
+        auth: { token: '3003' },
+        listenList: ['broadcastMessage', 'time'],
+        emitList: [],
+      },
     ]),
   ],
 };

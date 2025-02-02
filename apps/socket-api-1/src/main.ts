@@ -24,6 +24,33 @@ setInterval(() => {
   console.log('Broadcast message sent:', message);
 }, 5000);
 
+const symbols = ['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'];
+
+const previousPrices = {};
+symbols.forEach((symbol) => {
+  previousPrices[symbol] = (Math.random() * 1000).toFixed(2);
+});
+
+function generateRandomData() {
+  return symbols.map((symbol) => {
+    const previousPrice = parseFloat(previousPrices[symbol]);
+    const changePercent = (Math.random() * 2 - 1) / 100;
+    const newPrice = previousPrice * (1 + changePercent);
+    previousPrices[symbol] = newPrice.toFixed(2);
+
+    return {
+      symbol,
+      price: newPrice.toFixed(2),
+      volume: Math.floor(Math.random() * 10000),
+    };
+  });
+}
+
+setInterval(() => {
+  const data = generateRandomData();
+  io.emit('stock-data', data);
+}, 1000);
+
 server.listen(port, () => {
   console.log(`server running at http://localhost:${port}`);
 });

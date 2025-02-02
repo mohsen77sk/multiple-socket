@@ -14,30 +14,19 @@ export class AppComponent implements OnInit {
   private _socketManagerService = inject(SocketManagerService);
 
   title = 'socket-app';
-  time = '';
-  message = '';
-
+  time$!: Observable<string>;
   stockData$!: Observable<any>;
 
   /**
    * On init
    */
   ngOnInit(): void {
-    // this._socketManagerService
-    //   .listen<string>('time')
-    //   .pipe(
-    //     tap((message) => console.log(message)),
-    //     tap((message) => (this.time = message))
-    //   )
-    //   .subscribe();
-    // this._socketManagerService
-    //   .listen<string>('broadcastMessage')
-    //   .pipe(
-    //     tap((message) => console.log(message)),
-    //     tap((message) => (this.message = this.message + '<br>' + message))
-    //   )
-    //   .subscribe();
+    this._socketManagerService
+      .listen<string>('broadcastMessage')
+      .pipe(tap((message) => console.log(message)))
+      .subscribe();
 
-    this.stockData$ = this._socketManagerService.listen<any>('stock-data');
+    this.time$ = this._socketManagerService.listen<string>('time');
+    this.stockData$ = this._socketManagerService.listen<object[]>('stock-data');
   }
 }

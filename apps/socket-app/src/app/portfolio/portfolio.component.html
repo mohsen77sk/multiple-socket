@@ -1,0 +1,30 @@
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg m-6 bg-gray-50">
+  <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+    <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-gray-50">
+      Portfolio
+      <p class="mt-1 text-sm font-normal text-gray-500">Descriptions</p>
+    </caption>
+    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+      <tr>
+        <th scope="col" class="px-6 py-3">Symbol</th>
+        <th scope="col" class="px-6 py-3">Volume</th>
+        <th scope="col" class="px-6 py-3">Price</th>
+        <th scope="col" class="px-6 py-3">Change Percent</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (stock of (stockData$ | async); track stock.symbol) {
+      <tr class="bg-white border-b border-gray-200 odd:bg-gray-50 even:bg-gray-100">
+        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+          {{ stock.symbol }}
+        </th>
+        <td class="px-6 py-4">{{ stock.volume }}</td>
+        <td class="px-6 py-4">${{ stock.price }}</td>
+        <td class="px-6 py-4" [ngClass]="stock.changePercent > 0 ? 'text-green-500' : 'text-red-500'">
+          {{ stock.changePercent }}%
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

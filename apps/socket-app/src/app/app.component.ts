@@ -27,6 +27,5 @@ export class AppComponent implements OnInit {
       .subscribe();
 
     this.time$ = this._socketManagerService.listen<string>('time');
-    this.stockData$ = this._socketManagerService.listen<object[]>('stock-data');
   }
 }

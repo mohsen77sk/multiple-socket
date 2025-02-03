@@ -13,26 +13,39 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log(`a user connected to ${appName}`);
+  console.log(`User ${socket.id} connected to ${appName}`);
+
+  socket.on('joinWatchList', () => {
+    socket.join('watchList');
+    console.log(`User ${socket.id} joined watchlist of ${appName}`);
+  });
+
+  socket.on('leaveWatchList', () => {
+    socket.leave('watchList');
+    console.log(`User ${socket.id} left watchlist of ${appName}`);
+  });
+
+  socket.on('joinPortfolio', () => {
+    socket.join('portfolio');
+    console.log(`User ${socket.id} joined portfolio of ${appName}`);
+  });
+
+  socket.on('leavePortfolio', () => {
+    socket.leave('portfolio');
+    console.log(`User ${socket.id} left portfolio of ${appName}`);
+  });
 });
 
-setInterval(() => {
-  const timestamp = new Date().toLocaleTimeString();
-  const message = `Broadcast message sent at ${timestamp} from ${appName}`;
-
-  io.emit('broadcastMessage', message);
-  console.log('Broadcast message sent:', message);
-}, 5000);
-
-const symbols = ['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'];
+const symbolsWatchList = ['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'];
+const symbolsPortfolio = ['AAPL', 'AMZN', 'MSFT'];
 
 const previousPrices = {};
-symbols.forEach((symbol) => {
+symbolsWatchList.forEach((symbol) => {
   previousPrices[symbol] = (Math.random() * 1000).toFixed(2);
 });
 
-function generateRandomData() {
-  return symbols.map((symbol) => {
+function generateWatchListData() {
+  return symbolsWatchList.map((symbol) => {
     const previousPrice = parseFloat(previousPrices[symbol]);
     const changePercent = (Math.random() * 2 - 1) / 100;
     const newPrice = previousPrice * (1 + changePercent);
@@ -42,14 +55,43 @@ function generateRandomData() {
       symbol,
       price: newPrice.toFixed(2),
       volume: Math.floor(Math.random() * 10000),
+      changePercent: changePercent.toFixed(4),
+    };
+  });
+}
+
+function generatePortfolioData() {
+  return symbolsPortfolio.map((symbol) => {
+    const previousPrice = parseFloat(previousPrices[symbol]);
+    const changePercent = (Math.random() * 2 - 1) / 100;
+    const newPrice = previousPrice * (1 + changePercent);
+    previousPrices[symbol] = newPrice.toFixed(2);
+
+    return {
+      symbol,
+      price: newPrice.toFixed(2),
+      volume: Math.floor(Math.random() * 10000),
+      changePercent: changePercent.toFixed(4),
     };
   });
 }
 
 setInterval(() => {
-  const data = generateRandomData();
-  io.emit('stock-data', data);
+  const data = generateWatchListData();
+  io.to('watchList').emit('watchList-data', data);
 }, 1000);
+
+setInterval(() => {
+  const data = generatePortfolioData();
+  io.to('portfolio').emit('portfolio-data', data);
+}, 1000);
+
+setInterval(() => {
+  const timestamp = new Date().toLocaleTimeString();
+  const message = `Broadcast message sent at ${timestamp} from ${appName}`;
+
+  io.emit('broadcastMessage', message);
+}, 5000);
 
 server.listen(port, () => {
   console.log(`server running at http://localhost:${port}`);

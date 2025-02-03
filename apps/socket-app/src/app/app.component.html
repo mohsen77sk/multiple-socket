@@ -1,30 +1,39 @@
-<div class="flex my-6 mx-8">
-  <p class="flex-1 text-end">{{ time$ | async }}</p>
+<div class="min-h-full">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center">
+          <div class="block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a
+                routerLink="/watch-list"
+                routerLinkActive="bg-gray-900 text-white"
+                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >
+                Watch list
+              </a>
+              <a
+                routerLink="/portfolio"
+                routerLinkActive="bg-gray-900 text-white"
+                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >
+                Portfolio
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-4 flex items-center md:ml-6 text-white">
+            {{ time$ | async }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
 </div>
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg m-6 bg-gray-50">
-  <table class="w-full text-sm text-left rtl:text-right text-gray-500">
-    <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-gray-50">
-      List
-      <p class="mt-1 text-sm font-normal text-gray-500">Descriptions</p>
-    </caption>
-    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
-      <tr>
-        <th scope="col" class="px-6 py-3">Symbol</th>
-        <th scope="col" class="px-6 py-3">Price</th>
-        <th scope="col" class="px-6 py-3">Volume</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (stock of (stockData$ | async); track stock.symbol) {
-      <tr class="bg-white border-b border-gray-200 odd:bg-gray-50 even:bg-gray-100">
-        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-          {{ stock.symbol }}
-        </th>
-        <td class="px-6 py-4">${{ stock.price }}</td>
-        <td class="px-6 py-4">{{ stock.volume }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
-</div>
-<!-- <router-outlet></router-outlet> -->

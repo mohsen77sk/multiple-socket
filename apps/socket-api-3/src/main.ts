@@ -21,7 +21,6 @@ setInterval(() => {
   const message = `Broadcast message sent at ${timestamp} from ${appName}`;
 
   io.emit('broadcastMessage', message);
-  console.log('Broadcast message sent:', message);
 }, 5000);
 
 setInterval(() => {
@@ -29,7 +28,6 @@ setInterval(() => {
   const message = `${timestamp}`;
 
   io.emit('time', message);
-  console.log('Time sent:', message);
 }, 1000);
 
 server.listen(port, () => {

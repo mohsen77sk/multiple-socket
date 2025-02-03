@@ -64,7 +64,7 @@ export class SocketManagerService {
    * If no such socket is found, it logs an error message to the console and returns early.
    * Otherwise, it emits the event with the provided data to the selected socket.
    */
-  emit(event: string, data: unknown): void {
+  emit(event: string, data?: unknown): void {
     const sockets = Object.values(this._sockets).filter((socket) => socket.emitList.some((x) => x === event));
 
     if (sockets.length === 0) {

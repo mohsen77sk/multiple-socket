@@ -12,6 +12,18 @@ app.get('/', (req, res) => {
   res.send(`<p>Welcome to ${appName}</p>`);
 });
 
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  console.log(`Token received: ${token}`);
+
+  if (!token || token !== Buffer.from('3001').toString('base64')) {
+    const err = new Error('not authorized');
+    next(err);
+  }
+
+  next();
+});
+
 io.on('connection', (socket) => {
   console.log(`User ${socket.id} connected to ${appName}`);
 
@@ -33,6 +45,12 @@ io.on('connection', (socket) => {
   socket.on('leavePortfolio', () => {
     socket.leave('portfolio');
     console.log(`User ${socket.id} left portfolio of ${appName}`);
+  });
+
+  socket.on('disconnect', () => {
+    socket.leave('watchList');
+    socket.leave('portfolio');
+    console.log(`User ${socket.id} disconnected from ${appName} and leaved all romes.`);
   });
 });
 

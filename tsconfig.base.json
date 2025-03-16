@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@lib/shared/socket-manager": ["libs/shared/socket-manager/src/index.ts"]
+      "@lib/shared/socket-manager": ["libs/shared/socket-manager/src/index.ts"],
+      "@lib/shared/socket-manager-worker": ["libs/shared/socket-manager-worker/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,37 @@
+{
+  "name": "socket-manager-worker",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/socket-manager-worker/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/shared/socket-manager-worker/ng-package.json",
+        "webWorkerTsConfig": "libs/shared/socket-manager-worker/tsconfig.worker.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/shared/socket-manager-worker/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/shared/socket-manager-worker/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/socket-manager-worker/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
